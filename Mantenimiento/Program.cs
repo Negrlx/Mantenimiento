@@ -280,8 +280,10 @@ namespace Mantenimiento
                         string descEntrada = Console.ReadLine();
                         Console.Write("ID del usuario que registra: ");
                         int userIdEntrada = Convert.ToInt32(Console.ReadLine());
+                        Console.Write("Proveedor de la pieza: ");
+                        string proveedor = Console.ReadLine(); ;
 
-                        InventarioService.RegistrarEntradaPiezaEnSQL(codigoEntrada, nombreEntrada, cantidadEntrada, descEntrada, userIdEntrada);
+                        InventarioService.RegistrarEntradaPiezaEnSQL(codigoEntrada, nombreEntrada, cantidadEntrada, proveedor, descEntrada, userIdEntrada);
                         break;
 
                     case "3":

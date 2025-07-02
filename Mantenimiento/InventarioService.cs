@@ -47,7 +47,7 @@ namespace Mantenimiento
         }
 
         // Registra una entrada de piezas en el inventario
-        public static void RegistrarEntradaPiezaEnSQL(string codigoPieza, string nombrePieza, int cantidad, string descripcionMovimiento, int usuarioId)
+        public static void RegistrarEntradaPiezaEnSQL(string codigoPieza, string nombrePieza, int cantidad, string proveedor, string descripcionMovimiento, int usuarioId)
         {
             using (var conn = DBConnection.GetConnection())
             {
@@ -84,14 +84,15 @@ namespace Mantenimiento
                         {
                             // Inserta la nueva pieza si no existe
                             string insertPieza = @"INSERT INTO Inventario 
-                                (codigo_pieza, nombre_pieza, cantidad, fecha_ultima_actualizacion) 
-                                VALUES (@codigoPieza, @nombrePieza, @cantidad, NOW())";
+                        (codigo_pieza, nombre_pieza, cantidad, proveedor, fecha_ultima_actualizacion) 
+                        VALUES (@codigoPieza, @nombrePieza, @cantidad, @proveedor, NOW())";
 
                             using (var cmdInsert = new MySqlCommand(insertPieza, conn, transaction))
                             {
                                 cmdInsert.Parameters.AddWithValue("@codigoPieza", codigoPieza);
                                 cmdInsert.Parameters.AddWithValue("@nombrePieza", nombrePieza);
                                 cmdInsert.Parameters.AddWithValue("@cantidad", cantidad);
+                                cmdInsert.Parameters.AddWithValue("@proveedor", proveedor);
                                 cmdInsert.ExecuteNonQuery();
 
                                 piezaId = (int)cmdInsert.LastInsertedId;
@@ -99,11 +100,19 @@ namespace Mantenimiento
                         }
                         else
                         {
-                            // Actualiza la cantidad si la pieza ya existe
-                            string updateCantidad = "UPDATE Inventario SET cantidad = cantidad + @cantidad, fecha_ultima_actualizacion = NOW() WHERE id = @piezaId";
+                            // Actualiza la cantidad, el nombre y el proveedor si la pieza ya existe
+                            string updateCantidad = @"UPDATE Inventario 
+                        SET cantidad = cantidad + @cantidad, 
+                            nombre_pieza = @nombrePieza, 
+                            proveedor = @proveedor,
+                            fecha_ultima_actualizacion = NOW() 
+                        WHERE id = @piezaId";
+
                             using (var cmd = new MySqlCommand(updateCantidad, conn, transaction))
                             {
                                 cmd.Parameters.AddWithValue("@cantidad", cantidad);
+                                cmd.Parameters.AddWithValue("@nombrePieza", nombrePieza);
+                                cmd.Parameters.AddWithValue("@proveedor", proveedor);
                                 cmd.Parameters.AddWithValue("@piezaId", piezaId);
                                 cmd.ExecuteNonQuery();
                             }
@@ -111,19 +120,20 @@ namespace Mantenimiento
 
                         // Registra el movimiento de entrada
                         string insertMovimiento = @"INSERT INTO movimientos 
-                            (pieza_id, tipo_movimiento, cantidad, descripcion, usuario_id) 
-                            VALUES (@piezaId, 'Entrada', @cantidad, @descripcion, @usuarioId)";
+                    (pieza_id, tipo_movimiento, cantidad, descripcion, usuario_id) 
+                    VALUES (@piezaId, 'Entrada', @cantidad, @descripcion, @usuarioId)";
+
                         using (var cmd = new MySqlCommand(insertMovimiento, conn, transaction))
                         {
                             cmd.Parameters.AddWithValue("@piezaId", piezaId);
                             cmd.Parameters.AddWithValue("@cantidad", cantidad);
-                            cmd.Parameters.AddWithValue("@descripcion", descripcionMovimiento);
+                            cmd.Parameters.AddWithValue("@descripcion", descripcionMovimiento); // tipo TEXT
                             cmd.Parameters.AddWithValue("@usuarioId", usuarioId);
                             cmd.ExecuteNonQuery();
                         }
 
                         transaction.Commit();
-                        Console.WriteLine("Entrada registrada y cantidad actualizada correctamente.");
+                        Console.WriteLine("Entrada registrada y datos actualizados correctamente.");
                     }
                     catch (Exception ex)
                     {
@@ -133,6 +143,8 @@ namespace Mantenimiento
                 }
             }
         }
+
+
 
         // Retira piezas del inventario y registra el movimiento
         public static void RetirarPiezaYActualizarSQL(string codigoPieza, int cantidad, string descripcionMovimiento, int usuarioId)
