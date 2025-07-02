@@ -10,6 +10,7 @@ namespace Mantenimiento
         // Metodo principal que inicia el programa
         static void Main(string[] args)
         {
+            Console.Title = "Sistema de Mantenimiento";
             MenuPrincipal();
         }
 
@@ -24,7 +25,7 @@ namespace Mantenimiento
                 Console.WriteLine("=== MENU PRINCIPAL ===");
                 Console.WriteLine("1. Gestion de Usuarios");
                 Console.WriteLine("2. Gestion de Equipos");
-                Console.WriteLine("3. Gestion de Inventarioooooooooooooooooooooo");
+                Console.WriteLine("3. Gestion de Inventario");
                 Console.WriteLine("4. Gestion de Ordenes de Mantenimiento");
                 Console.WriteLine("5. Notificaciones");
                 Console.WriteLine("6. Salir");
@@ -205,7 +206,8 @@ namespace Mantenimiento
                 Console.WriteLine("=== MENU DE NOTIFICACIONES ===");
                 Console.WriteLine("1. Ver todas las notificaciones");
                 Console.WriteLine("2. Ver mis notificaciones pendientes y marcar como leidas");
-                Console.WriteLine("3. Salir");
+                Console.WriteLine("3. Eliminar Notificaciones");
+                Console.WriteLine("4. Salir");
                 Console.Write("Selecciona una opcion: ");
 
                 string opcion = Console.ReadLine()?.Trim();
@@ -232,6 +234,12 @@ namespace Mantenimiento
                         break;
 
                     case "3":
+                        NtfService.EliminarTodasLasNotificaciones();
+                        Console.WriteLine("Todas las notificaciones han sido eliminadas.");
+                        Console.WriteLine("Presiona una tecla para continuar...");
+                        Console.ReadKey();
+                        break;
+                    case "4":
                         Console.WriteLine("Saliendo del menu de notificaciones...");
                         return;
 

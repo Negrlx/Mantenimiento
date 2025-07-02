@@ -177,5 +177,45 @@ namespace Mantenimiento
             Console.WriteLine("\nPresiona una tecla para continuar...");
             Console.ReadKey();
         }
+
+        // Metodo para eliminar todas las notificaciones de la tabla
+        public static void EliminarTodasLasNotificaciones()
+        {
+            Console.Clear();
+            Console.WriteLine("--- ELIMINAR TODAS LAS NOTIFICACIONES ---");
+
+            using (var conn = DBConnection.GetConnection())
+            {
+                // Validar conexion
+                if (conn.State != System.Data.ConnectionState.Open)
+                {
+                    Console.WriteLine("No se pudo conectar a la base de datos.");
+                    return;
+                }
+
+                // Confirmacion del usuario
+                Console.Write("¿Seguro que deseas eliminar todas las notificaciones? (s/n): ");
+                string respuesta = Console.ReadLine()?.Trim().ToLower();
+
+                if (respuesta != "s")
+                {
+                    Console.WriteLine("Operacion cancelada.");
+                    return;
+                }
+
+                // Consulta para eliminar todas las filas
+                string deleteQuery = "DELETE FROM notificaciones";
+
+                using (var cmd = new MySqlCommand(deleteQuery, conn))
+                {
+                    int filasEliminadas = cmd.ExecuteNonQuery();
+                    Console.WriteLine($"Se han eliminado {filasEliminadas} notificaciones.");
+                }
+            }
+
+            Console.WriteLine("\nPresiona una tecla para continuar...");
+            Console.ReadKey();
+        }
+
     }
 }
